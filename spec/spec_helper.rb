@@ -6,3 +6,9 @@ RSpec.configure do |config|
   config.filter_run :focus
   config.include EndToEndHelpers, :type => :ete
 end
+
+UICATALOG_APP_PATH = File.expand_path("fixtures/UICatalog.app", File.dirname(__FILE__))
+
+$:.unshift(File.join(File.dirname(__FILE__), *%w[.. lib]))
+
+require 'ui_automation'
