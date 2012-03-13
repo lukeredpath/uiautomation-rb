@@ -16,5 +16,9 @@ module UIAutomation
       
       $?.exitstatus
     end
+    
+    def to_s
+      @command_line
+    end
   end
 end

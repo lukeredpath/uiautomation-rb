@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe UIAutomation::InstrumentsRunner do
   let(:command)       { mock('command') }
-  let(:listener)      { mock('listener') }
+  let(:listener)      { mock('listener').as_null_object }
   let(:instruments)   { UIAutomation::InstrumentsRunner.new(command) }
   
   before do
@@ -10,7 +10,19 @@ describe UIAutomation::InstrumentsRunner do
   end
   
   it "executes it's command with itself as the output handler" do
-    command.should_receive(:execute).with(instruments)
+    command.should_receive(:execute).with(instruments).and_return(0)
+    instruments.run
+  end
+  
+  it "notifies that it finished if the command returns a zero exit code" do
+    command.stub(:execute).and_return(0)
+    listener.expects(:test_runner_finished)
+    instruments.run
+  end
+  
+  it "notifies that it finished with error if the command returns a non-zero exit code" do
+    command.stub(:execute).and_return(1)
+    listener.expects(:test_runner_finished_with_error)
     instruments.run
   end
   
@@ -33,7 +45,7 @@ describe UIAutomation::InstrumentsRunner do
   # Instruments Trace Complete (Duration : 5.500378s; Output : /Users/luke/Code/repos/Timeslips/instrumentscli0.trace)
   
   it "notifies a test began when start log message received" do
-    listener.should_receive(:test_started)
+    listener.should_receive(:test_started).with("It started")
     instruments.handle_output("2012-03-12 23:49:15 +0000 Start: It started")
   end
   
@@ -43,7 +55,7 @@ describe UIAutomation::InstrumentsRunner do
   end
   
   it "notifies a test failed when fail log message received" do
-    listener.should_receive(:test_failed)
+    listener.should_receive(:test_failed).with("This one failed")
     instruments.handle_output("2012-03-12 23:49:15 +0000 Fail: This one failed")
   end
   

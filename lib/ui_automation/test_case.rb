@@ -14,19 +14,12 @@ module UIAutomation
         end
       end
     end
-    
-    def setup
-      @failures = []
-    end
 
     def automate(script)
-      @script = script
-    end
-    
-    def handle_output(line)
-      if line =~ /Fail: (.*)/
-        @failures << $1
-      end
+      @script = <<-JS
+        UIALogger.logStart('anything')
+        #{script}
+      JS
     end
 
     private
@@ -37,21 +30,21 @@ module UIAutomation
         io.close
       end
       
-      unless Instruments.run_automation(self.class.application_under_test, script.path, self)
-        raise "Instruments exited with error"
-      end
+      automation_command = Instruments.automation_command(self.class.application_under_test, script.path)
+
+      instruments = InstrumentsRunner.new(automation_command)
+      instruments.add_listener(@automation_test = AutomationTest.new)
+      instruments.run
     end
     
     def check_for_failures
-      if @failures.any?
-        flunk @failures.join(", ")
-      end
+      assert @automation_test.passed?, @automation_test.failure_message
     end
   end
 end
 
 module Instruments
-  def self.run(template, app_path, env_vars={}, output_handler)
+  def self.command_for(template, app_path, env_vars={})
     raise "Invalid app path: #{app_path}" unless (File.exist?(app_path) rescue false)
     
     cmd = "instruments -t #{template} #{app_path}"
@@ -59,17 +52,15 @@ module Instruments
       cmd << " -e #{key} #{value}"
     end
     
-    command = UIAutomation::Command.new(cmd)
-    command.execute(output_handler) == 0
+    UIAutomation::Command.new(cmd)
   end
 
-  def self.run_automation(app_path, script, results_path = ".", output_handler)
+  def self.automation_command(app_path, script, results_path = ".")
     automation_template = "#{`xcode-select -print-path`.strip}/Platforms/iPhoneOS.platform/Developer/Library/Instruments/PlugIns/AutomationInstrument.bundle/Contents/Resources/Automation.tracetemplate"
 
-    run(automation_template, app_path, {
+    command_for(automation_template, app_path, {
       "UIASCRIPT" => script,
-      "UIARESULTSPATH" => results_path,
-      "RESET_ON_SHAKE" => "true"
-    }, output_handler)
+      "UIARESULTSPATH" => results_path
+    })
   end
 end

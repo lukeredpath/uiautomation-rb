@@ -10,17 +10,21 @@ module UIAutomation
     end
     
     def run
-      @command.execute(self)
+      if @command.execute(self) > 0
+        notify :test_runner_finished_with_error
+      else
+        notify :test_runner_finished
+      end
     end
     
     def handle_output(line)
       case line
-      when /Start:/
-        notify :test_started
+      when /Start: (.*)/
+        notify :test_started, $1
       when /Pass:/
         notify :test_passed
-      when /Fail:/
-        notify :test_failed
+      when /Fail: (.*)/
+        notify :test_failed, $1
       when /Issue:/
         notify :test_aborted
       end
