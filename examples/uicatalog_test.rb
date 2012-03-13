@@ -10,16 +10,16 @@ class UICatalogTest < UIAutomation::TestCase
 
   test "Interacting with text fields" do
     automate <<-JS
-      UIATarget.localTarget().delay(5);
       var app = UIATarget.localTarget.frontMostApp();
+      var app = UIATarget.localTarget().frontMostApp();
       var window = app.mainWindow();
-      var tableView = mainWindow.tableViews()[0];
+      var tableView = window.tableViews()[0];
       var textFieldsCell = tableView.cells()[2];
-      if (textFieldsCell)) {
+      if (textFieldsCell) {
         textFieldsCell.tap();
         UIALogger.logPass("It worked");
       } else {
-       UIALogger.logFailure(textFieldsCell); 
+        UIALogger.logFailure(textFieldsCell); 
       }
     JS
   end  
