@@ -31,4 +31,9 @@ describe "UIAutomation, when running tests:", :type => :ete do
     test_runner.should have_exited_with(1).failures
     test_runner.should have_reported_failure("Something went wrong")
   end
+  
+  it "Cleans up after itself by removing any instruments artefacts" do
+    test_runner.run_test_with_script_definition("")
+    test_runner.should have_cleaned_up_all_instruments_artefacts
+  end
 end

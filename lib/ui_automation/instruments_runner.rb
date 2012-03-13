@@ -33,7 +33,7 @@ module UIAutomation
     private
     
     def notify(message, *args)
-      @listeners.each { |l| l.send(message, *args) }
+      @listeners.each { |l| l.send(message, *args) if l.respond_to?(message) }
     end
   end
 end

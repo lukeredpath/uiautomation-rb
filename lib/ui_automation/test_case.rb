@@ -16,6 +16,14 @@ module UIAutomation
     end
     
     attr_reader :automation_test
+    
+    def test_runner_finished
+      cleanup
+    end
+    
+    def test_runner_finished_with_error
+      cleanup
+    end
 
     private
     
@@ -32,6 +40,7 @@ module UIAutomation
       command_builder.script_path = script.path
       
       instruments = InstrumentsRunner.new(command_builder.build)
+      instruments.add_listener(self)
       instruments.add_listener(automation_test)
       instruments.run
     end
@@ -48,6 +57,11 @@ module UIAutomation
     
     def template_path
       UIAutomation::Configuration.instance.automation_template_path
+    end
+    
+    def cleanup
+      system "rm -fr #{FileUtils.pwd}/*.trace"
+      system "rm -fr #{FileUtils.pwd}/Run*"
     end
   end
 end

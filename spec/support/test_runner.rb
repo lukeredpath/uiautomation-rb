@@ -53,6 +53,11 @@ class TestRunner
     last_output.match(/Error/)
   end
   
+  def has_cleaned_up_all_instruments_artefacts?
+    Dir["#{PROJECT_ROOT}/**/*.trace"].empty? &&
+    Dir["#{PROJECT_ROOT}/**/Run*"].empty?
+  end
+  
   def last_output
     @output.rewind
     @output.read

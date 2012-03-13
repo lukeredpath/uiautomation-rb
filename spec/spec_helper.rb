@@ -9,7 +9,8 @@ RSpec.configure do |config|
 end
 
 UICATALOG_APP_PATH = File.expand_path("fixtures/UICatalog.app", File.dirname(__FILE__))
+PROJECT_ROOT = File.join(File.dirname(__FILE__), "..")
 
-$:.unshift(File.join(File.dirname(__FILE__), *%w[.. lib]))
+$:.unshift File.join(PROJECT_ROOT, "lib")
 
 require 'ui_automation'
