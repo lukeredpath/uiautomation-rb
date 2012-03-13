@@ -6,24 +6,20 @@ module UIAutomation
     class << self
       attr_accessor :application_under_test
       
-      def test(&block)
+      def test(name = "", &block)
         define_method(:test_automation) do
           initialize_test(&block)
           compile_and_run_automation_script
           check_for_failures
         end
       end
+      
+      def tests_application(app)
+        self.application_under_test = app
+      end
     end
     
     attr_reader :automation_test
-    
-    def test_runner_finished
-      cleanup
-    end
-    
-    def test_runner_finished_with_error
-      cleanup
-    end
 
     private
     
@@ -40,7 +36,7 @@ module UIAutomation
       command_builder.script_path = script.path
       
       instruments = InstrumentsRunner.new(command_builder.build)
-      instruments.add_listener(self)
+      instruments.add_listener(TestCleaner.new)
       instruments.add_listener(automation_test)
       instruments.run
     end
@@ -59,9 +55,19 @@ module UIAutomation
       UIAutomation::Configuration.instance.automation_template_path
     end
     
-    def cleanup
-      system "rm -fr #{FileUtils.pwd}/*.trace"
-      system "rm -fr #{FileUtils.pwd}/Run*"
+    class TestCleaner
+      def test_runner_finished
+        cleanup
+      end
+
+      def test_runner_finished_with_error
+        cleanup
+      end
+      
+      def cleanup
+        system "rm -fr #{FileUtils.pwd}/*.trace"
+        system "rm -fr #{FileUtils.pwd}/Run*"
+      end
     end
   end
 end
