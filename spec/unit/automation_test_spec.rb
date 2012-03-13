@@ -28,8 +28,13 @@ describe UIAutomation::AutomationTest do
 
   it "transitions from a running state to an aborted state when a test_aborted message is received" do
     test._start
-    test.test_aborted
+    test.test_aborted(any_string)
     test.should be_aborted
+  end
+  
+  it "transitions from a waiting state to an aborted state when a test_aborted message is received" do
+    test.test_aborted(any_string)
+    test.should be_aborted(any_string)
   end
 
   it "stores the name of the test when it starts" do

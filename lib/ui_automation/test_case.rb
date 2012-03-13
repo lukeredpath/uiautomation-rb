@@ -42,7 +42,7 @@ module UIAutomation
     end
     
     def check_for_failures
-      assert @automation_test.passed?, @automation_test.failure_message
+      assert @automation_test.passed?, @automation_test.message_for_failure
     end
     
     def command_builder

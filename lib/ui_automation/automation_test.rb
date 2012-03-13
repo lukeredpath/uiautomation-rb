@@ -19,7 +19,7 @@ module UIAutomation
       end
       
       event :_abort do
-        transition :running => :aborted
+        transition any => :aborted
       end
       
       event :_finished do
@@ -63,7 +63,8 @@ module UIAutomation
       _fail
     end
     
-    def test_aborted
+    def test_aborted(error)
+      @error_message = error
       _abort
     end
     
@@ -73,6 +74,10 @@ module UIAutomation
     
     def test_runner_finished_with_error
       _finished_with_error
+    end
+    
+    def message_for_failure
+      @failure_message || @error_message
     end
     
     class Builder

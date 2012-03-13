@@ -25,8 +25,10 @@ module UIAutomation
         notify :test_passed
       when /Fail: (.*)/
         notify :test_failed, $1
-      when /Issue:/
-        notify :test_aborted
+      when /Issue: (.*)/
+        notify :test_aborted, $1
+      when /None: (.*)/
+        notify :test_aborted, $1
       end
     end
     

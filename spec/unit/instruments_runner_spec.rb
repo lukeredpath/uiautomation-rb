@@ -60,7 +60,12 @@ describe UIAutomation::InstrumentsRunner do
   end
   
   it "notifies a test aborted when issue log message received" do
-    listener.should_receive(:test_aborted)
+    listener.should_receive(:test_aborted).with("Something weird happened")
     instruments.handle_output("2012-03-12 23:49:15 +0000 Issue: Something weird happened")
+  end
+  
+  it "notifies a test aborted when an unknown message received" do
+    listener.should_receive(:test_aborted).with("Script threw an uncaught JavaScript error: Parse error")
+    instruments.handle_output("2012-03-13 20:29:14 +0000 None: Script threw an uncaught JavaScript error: Parse error")
   end
 end
