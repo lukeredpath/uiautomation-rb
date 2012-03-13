@@ -47,12 +47,8 @@ module UIAutomation
       end
     end
     
-    def xcode_root
-      `xcode-select -print-path`.strip
-    end
-    
     def template_path
- "#{xcode_root}/Platforms/iPhoneOS.platform/Developer/Library/Instruments/PlugIns/AutomationInstrument.bundle/Contents/Resources/Automation.tracetemplate"
+      UIAutomation::Configuration.instance.automation_template_path
     end
   end
 end
