@@ -8,32 +8,31 @@ module UIAutomation
       
       def test(&block)
         define_method(:test_automation) do
-          instance_eval(&block)
+          initialize_test(&block)
           compile_and_run_automation_script
           check_for_failures
         end
       end
     end
-
-    def automate(script)
-      @script = <<-JS
-        UIALogger.logStart('anything')
-        #{script}
-      JS
-    end
+    
+    attr_reader :automation_test
 
     private
+    
+    def initialize_test(&block)
+      @automation_test = AutomationTest.new(&block)
+    end
 
     def compile_and_run_automation_script
       script = Tempfile.new("automation-script").tap do |io|
-        io.write @script
+        io.write automation_test.compile
         io.close
       end
       
       command_builder.script_path = script.path
       
       instruments = InstrumentsRunner.new(command_builder.build)
-      instruments.add_listener(@automation_test = AutomationTest.new)
+      instruments.add_listener(automation_test)
       instruments.run
     end
     

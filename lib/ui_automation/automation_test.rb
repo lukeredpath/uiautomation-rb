@@ -1,4 +1,5 @@
 require 'state_machine'
+require 'core_ext/string'
 
 module UIAutomation
   class AutomationTest
@@ -30,6 +31,24 @@ module UIAutomation
       end
     end
     
+    def initialize(&block)
+      @scripts = []
+      build(&block) if block_given?
+      super
+    end
+    
+    def build(&block)
+      Builder.new(self).build(&block)
+    end
+    
+    def add_script(snippet)
+      @scripts << snippet.strip_heredoc.strip
+    end
+    
+    def compile
+      @scripts.join("\n")
+    end
+    
     def test_started(name)
       @name = name
       _start
@@ -54,6 +73,23 @@ module UIAutomation
     
     def test_runner_finished_with_error
       _finished_with_error
+    end
+    
+    class Builder
+      def initialize(test)
+        @test = test
+        @test.add_script <<-JS
+          UIALogger.logStart('anything');
+        JS
+      end
+      
+      def build(&block)
+        instance_eval(&block)
+      end
+      
+      def automate(script)
+        @test.add_script(script)
+      end
     end
   end
 end
