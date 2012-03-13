@@ -30,9 +30,9 @@ module UIAutomation
         io.close
       end
       
-      automation_command = Instruments.automation_command(self.class.application_under_test, script.path)
-
-      instruments = InstrumentsRunner.new(automation_command)
+      command_builder.script_path = script.path
+      
+      instruments = InstrumentsRunner.new(command_builder.build)
       instruments.add_listener(@automation_test = AutomationTest.new)
       instruments.run
     end
@@ -40,27 +40,19 @@ module UIAutomation
     def check_for_failures
       assert @automation_test.passed?, @automation_test.failure_message
     end
-  end
-end
-
-module Instruments
-  def self.command_for(template, app_path, env_vars={})
-    raise "Invalid app path: #{app_path}" unless (File.exist?(app_path) rescue false)
     
-    cmd = "instruments -t #{template} #{app_path}"
-    env_vars.each do |key, value|
-      cmd << " -e #{key} #{value}"
+    def command_builder
+      @command_builder ||= AutomationCommandBuilder.new(template_path).tap do |builder|
+        builder.app_path = self.class.application_under_test
+      end
     end
     
-    UIAutomation::Command.new(cmd)
-  end
-
-  def self.automation_command(app_path, script, results_path = ".")
-    automation_template = "#{`xcode-select -print-path`.strip}/Platforms/iPhoneOS.platform/Developer/Library/Instruments/PlugIns/AutomationInstrument.bundle/Contents/Resources/Automation.tracetemplate"
-
-    command_for(automation_template, app_path, {
-      "UIASCRIPT" => script,
-      "UIARESULTSPATH" => results_path
-    })
+    def xcode_root
+      `xcode-select -print-path`.strip
+    end
+    
+    def template_path
+ "#{xcode_root}/Platforms/iPhoneOS.platform/Developer/Library/Instruments/PlugIns/AutomationInstrument.bundle/Contents/Resources/Automation.tracetemplate"
+    end
   end
 end
