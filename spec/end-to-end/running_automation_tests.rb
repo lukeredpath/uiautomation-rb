@@ -15,7 +15,7 @@ describe "UIAutomation, when running tests:", :type => :ete do
   
   it "Runs a single test with a minimal automation script that just logs, passes and exits" do
     test_runner.run_test_with_script_definition <<-JS
-      UIALogger.logMessage('Hello from UIAutomation')
+      UIALogger.logMessage('Hello from UIAutomation');
     JS
 
     test_runner.should have_reported_test_count_of(1)
@@ -24,12 +24,20 @@ describe "UIAutomation, when running tests:", :type => :ete do
   
   it "Runs a single failing test, fails and exits" do
     test_runner.run_test_with_script_definition <<-JS
-      UIALogger.logFail('Something went wrong')
+      UIALogger.logFail('Something went wrong');
     JS
     
     test_runner.should have_reported_test_count_of(1)
     test_runner.should have_exited_with(1).failures
     test_runner.should have_reported_failure("Something went wrong")
+  end
+  
+  it 'Exits a test with invalid Javascript immediately with an error without running instruments' do
+    test_runner.run_test_with_script_definition <<-JS
+      UIALogger.logFail()'Something went wrong');
+    JS
+    
+    test_runner.should have_exited_with(1).errors
   end
   
   it "Cleans up after itself by removing any instruments artefacts" do

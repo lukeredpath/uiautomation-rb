@@ -33,6 +33,10 @@ module UIAutomation
         io.close
       end
       
+      if JSLint.available? && !JSLint.check_file(script.path)
+        raise "Could not run: test contains invalid Javascript"
+      end
+      
       command_builder.script_path = script.path
       
       instruments = InstrumentsRunner.new(command_builder.build)

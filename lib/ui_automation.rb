@@ -6,6 +6,7 @@ module UIAutomation
   autoload :Command,                  "ui_automation/command"
   autoload :AutomationTest,           "ui_automation/automation_test"
   autoload :AutomationCommandBuilder, "ui_automation/automation_command_builder"
+  autoload :JSLint,                   "ui_automation/js_lint"
   
   def self.configure(&block)
     yield Configuration.instance
