@@ -13,7 +13,7 @@ describe "UIAutomation, when running tests:", :type => :ete do
     test_runner.should have_exited_without_any_errors_or_failures
   end
   
-  it "Runs a single test with a minimal automation script that just logs, passes and exit" do
+  it "Runs a single test with a minimal automation script that just logs, passes and exits" do
     test_runner.run_test_with_script_definition <<-JS
       UIALogger.logMessage('Hello from UIAutomation')
     JS
